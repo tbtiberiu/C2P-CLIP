@@ -9,7 +9,7 @@ Beijing Jiaotong University, YanShan University, CUHK
 :star: If our code is helpful to you, please help star this repo. Thanks! :hugs:
 
 ## News 🆕
-- [Pretrained models & Text links](https://drive.google.com/drive/folders/1WZStlW2zpH85NZit1-JADMvzovEEZEj9?usp=sharing)
+- [Pretrained models & Text links & Dataset link](https://drive.google.com/drive/folders/1WZStlW2zpH85NZit1-JADMvzovEEZEj9?usp=sharing)
 
 # **Overall Pipeline**
 <p align="center">
