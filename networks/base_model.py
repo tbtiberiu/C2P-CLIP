@@ -1,9 +1,9 @@
 # from pix2pix
 import os
+
 import torch
 import torch.nn as nn
 from torch.nn import init
-from torch.optim import lr_scheduler
 
 
 class BaseModel(nn.Module):
@@ -14,7 +14,11 @@ class BaseModel(nn.Module):
         self.isTrain = opt.isTrain
         self.lr = opt.lr
         self.save_dir = os.path.join(opt.checkpoints_dir, opt.name)
-        self.device = torch.device('cuda:{}'.format(opt.gpu_ids[0])) if opt.gpu_ids else torch.device('cpu')
+        self.device = (
+            torch.device('cuda:{}'.format(opt.gpu_ids[0]))
+            if opt.gpu_ids
+            else torch.device('cpu')
+        )
 
     def save_networks(self, epoch):
         save_filename = 'model_epoch_%s.pth' % epoch
@@ -24,7 +28,7 @@ class BaseModel(nn.Module):
         state_dict = {
             'model': self.model.state_dict(),
             # 'optimizer' : self.optimizer.state_dict(),
-            'total_steps' : self.total_steps,
+            'total_steps': self.total_steps,
         }
         torch.save(state_dict, save_path)
         try:
@@ -32,14 +36,12 @@ class BaseModel(nn.Module):
                 savemodel = self.model.module
             except:
                 savemodel = self.model
-#            savemodel.model.vision_model = savemodel.vision_tower_lora.merge_and_unload()
+            #            savemodel.model.vision_model = savemodel.vision_tower_lora.merge_and_unload()
             save_path2 = os.path.join(self.save_dir, f'model_epoch_{epoch}')
-            os.makedirs(save_path2, mode = 0o777, exist_ok = True) 
+            os.makedirs(save_path2, mode=0o777, exist_ok=True)
             savemodel.model.save_pretrained(save_path2, safe_serialization=False)
         except:
             pass
-
-
 
     # load models from the disk
     def load_networks(self, epoch):
@@ -81,7 +83,9 @@ class BaseModel(nn.Module):
 def init_weights(net, init_type='normal', gain=0.02):
     def init_func(m):
         classname = m.__class__.__name__
-        if hasattr(m, 'weight') and (classname.find('Conv') != -1 or classname.find('Linear') != -1):
+        if hasattr(m, 'weight') and (
+            classname.find('Conv') != -1 or classname.find('Linear') != -1
+        ):
             if init_type == 'normal':
                 init.normal_(m.weight.data, 0.0, gain)
             elif init_type == 'xavier':
@@ -91,7 +95,9 @@ def init_weights(net, init_type='normal', gain=0.02):
             elif init_type == 'orthogonal':
                 init.orthogonal_(m.weight.data, gain=gain)
             else:
-                raise NotImplementedError('initialization method [%s] is not implemented' % init_type)
+                raise NotImplementedError(
+                    'initialization method [%s] is not implemented' % init_type
+                )
             if hasattr(m, 'bias') and m.bias is not None:
                 init.constant_(m.bias.data, 0.0)
         elif classname.find('BatchNorm2d') != -1:

@@ -1,10 +1,12 @@
-import torch
+import os
+
 import numpy as np
+import torch
 from torch.utils.data.sampler import WeightedRandomSampler
 
 from .datasets import dataset_folder
 
-import os
+
 def get_dataset(opt):
     classes = os.listdir(opt.dataroot) if len(opt.classes) == 0 else opt.classes
     if '0_real' not in classes or '1_fake' not in classes:
@@ -16,16 +18,18 @@ def get_dataset(opt):
         return torch.utils.data.ConcatDataset(dset_lst)
     return dataset_folder(opt, opt.dataroot)
 
+
 def get_bal_sampler(dataset):
     targets = []
     for d in dataset.datasets:
         targets.extend(d.targets)
 
     ratio = np.bincount(targets)
-    w = 1. / torch.tensor(ratio, dtype=torch.float)
+    w = 1.0 / torch.tensor(ratio, dtype=torch.float)
     sample_weights = w[targets]
-    sampler = WeightedRandomSampler(weights=sample_weights,
-                                    num_samples=len(sample_weights))
+    sampler = WeightedRandomSampler(
+        weights=sample_weights, num_samples=len(sample_weights)
+    )
     return sampler
 
 
@@ -34,10 +38,12 @@ def create_dataloader(opt):
     dataset = get_dataset(opt)
     sampler = get_bal_sampler(dataset) if opt.class_bal else None
 
-    data_loader = torch.utils.data.DataLoader(dataset,
-                                              batch_size=opt.batch_size,
-                                              shuffle=shuffle,
-                                              sampler=sampler,
-                                              drop_last=True if opt.isTrain else False,
-                                              num_workers=int(opt.num_threads))
+    data_loader = torch.utils.data.DataLoader(
+        dataset,
+        batch_size=opt.batch_size,
+        shuffle=shuffle,
+        sampler=sampler,
+        drop_last=True if opt.isTrain else False,
+        num_workers=int(opt.num_threads),
+    )
     return data_loader

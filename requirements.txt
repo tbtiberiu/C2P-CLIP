@@ -7,7 +7,7 @@ attrs==23.2.0
 certifi==2024.7.4
 charset-normalizer==3.3.2
 click==8.1.7
-clip @ git+https://github.com/openai/CLIP.git@dcba3cb2e2827b402d2701e7e1c7d9fed8a20ef1
+clip @ git+https://github.com/openai/CLIP.git
 contourpy==1.2.1
 cycler==0.12.1
 DingtalkChatbot==1.5.7
@@ -63,7 +63,7 @@ pydantic==2.10.6
 pydantic_core==2.27.2
 pyparsing==3.1.2
 python-dateutil==2.9.0.post0
-pytorch_wavelets @ file:///opt/data/private/tcc/GANS_BS1_project6_LLM/A_FatFormer/FatFormer/pytorch_wavelets
+pytorch_wavelets @ git+https://github.com/fbcotter/pytorch_wavelets.git
 PyYAML==6.0.1
 ray==2.32.0
 referencing==0.35.1

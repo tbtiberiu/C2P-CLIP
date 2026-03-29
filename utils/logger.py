@@ -1,23 +1,28 @@
-import sys
-import os
-import time
-import numpy as np
 import collections
 import logging
+import os
+import sys
+import time
+
+import numpy as np
+
 
 def create_logger(log_dir, phase='train'):
     time_str = time.strftime('%Y-%m-%d-%H-%M')
     log_file = '{}_{}.log'.format(time_str, phase)
     final_log_file = os.path.join(log_dir, log_file)
-    logging.basicConfig(filename=str(final_log_file),
+    logging.basicConfig(
+        filename=str(final_log_file),
         format='%(asctime)s %(levelname)s: %(message)s',
-                        level=logging.INFO,
-                        datefmt='%Y-%m-%d %H:%M:%S')
+        level=logging.INFO,
+        datefmt='%Y-%m-%d %H:%M:%S',
+    )
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
     console = logging.StreamHandler()
     logging.getLogger('').addHandler(console)
     return logger
+
 
 class Progbar(object):
     """Displays a progress bar.
@@ -32,8 +37,9 @@ class Progbar(object):
         interval: Minimum visual progress update interval (in seconds).
     """
 
-    def __init__(self, target, width=30, verbose=1, interval=0.05,
-                 stateful_metrics=None):
+    def __init__(
+        self, target, width=30, verbose=1, interval=0.05, stateful_metrics=None
+    ):
         self.target = target
         self.width = width
         self.verbose = verbose
@@ -43,9 +49,9 @@ class Progbar(object):
         else:
             self.stateful_metrics = set()
 
-        self._dynamic_display = ((hasattr(sys.stdout, 'isatty') and
-                                  sys.stdout.isatty()) or
-                                 'ipykernel' in sys.modules)
+        self._dynamic_display = (
+            hasattr(sys.stdout, 'isatty') and sys.stdout.isatty()
+        ) or 'ipykernel' in sys.modules
         self._total_width = 0
         self._seen_so_far = 0
         self._values = collections.OrderedDict()
@@ -66,11 +72,13 @@ class Progbar(object):
         for k, v in values:
             if k not in self.stateful_metrics:
                 if k not in self._values:
-                    self._values[k] = [v * (current - self._seen_so_far),
-                                       current - self._seen_so_far]
+                    self._values[k] = [
+                        v * (current - self._seen_so_far),
+                        current - self._seen_so_far,
+                    ]
                 else:
                     self._values[k][0] += v * (current - self._seen_so_far)
-                    self._values[k][1] += (current - self._seen_so_far)
+                    self._values[k][1] += current - self._seen_so_far
             else:
                 self._values[k] = v
         self._seen_so_far = current
@@ -78,8 +86,11 @@ class Progbar(object):
         now = time.time()
         info = ' - %.0fs' % (now - self._start)
         if self.verbose == 1:
-            if (now - self._last_update < self.interval and
-                    self.target is not None and current < self.target):
+            if (
+                now - self._last_update < self.interval
+                and self.target is not None
+                and current < self.target
+            ):
                 return
 
             prev_total_width = self._total_width
@@ -96,12 +107,12 @@ class Progbar(object):
                 prog = float(current) / self.target
                 prog_width = int(self.width * prog)
                 if prog_width > 0:
-                    bar += ('=' * (prog_width - 1))
+                    bar += '=' * (prog_width - 1)
                     if current < self.target:
                         bar += '>'
                     else:
                         bar += '='
-                bar += ('.' * (self.width - prog_width))
+                bar += '.' * (self.width - prog_width)
                 bar += ']'
             else:
                 bar = '%7d/Unknown' % current
@@ -116,7 +127,11 @@ class Progbar(object):
             if self.target is not None and current < self.target:
                 eta = time_per_unit * (self.target - current)
                 if eta > 3600:
-                    eta_format = '%d:%02d:%02d' % (eta // 3600, (eta % 3600) // 60, eta % 60)
+                    eta_format = '%d:%02d:%02d' % (
+                        eta // 3600,
+                        (eta % 3600) // 60,
+                        eta % 60,
+                    )
                 elif eta > 60:
                     eta_format = '%d:%02d' % (eta // 60, eta % 60)
                 else:
@@ -134,8 +149,7 @@ class Progbar(object):
             for k in self._values:
                 info += ' - %s:' % k
                 if isinstance(self._values[k], list):
-                    avg = np.mean(
-                        self._values[k][0] / max(1, self._values[k][1]))
+                    avg = np.mean(self._values[k][0] / max(1, self._values[k][1]))
                     if abs(avg) > 1e-3:
                         info += ' %.4f' % avg
                     else:
@@ -145,7 +159,7 @@ class Progbar(object):
 
             self._total_width += len(info)
             if prev_total_width > self._total_width:
-                info += (' ' * (prev_total_width - self._total_width))
+                info += ' ' * (prev_total_width - self._total_width)
 
             if self.target is not None and current >= self.target:
                 info += '\n'
@@ -157,8 +171,7 @@ class Progbar(object):
             if self.target is None or current >= self.target:
                 for k in self._values:
                     info += ' - %s:' % k
-                    avg = np.mean(
-                        self._values[k][0] / max(1, self._values[k][1]))
+                    avg = np.mean(self._values[k][0] / max(1, self._values[k][1]))
                     if avg > 1e-3:
                         info += ' %.4f' % avg
                     else:
@@ -190,15 +203,12 @@ class AverageMeter(object):
         self.val = val
         self.sum += val * n
         self.count += n
-        self.avg = self.sum / (.0001 + self.count)
+        self.avg = self.sum / (0.0001 + self.count)
 
     def __str__(self):
-        """String representation for logging
-        """
+        """String representation for logging"""
         # for values that should be recorded exactly e.g. iteration number
         if self.count == 0:
             return str(self.val)
         # for stats
         return '%.4f (%.4f)' % (self.val, self.avg)
-
-
